@@ -329,14 +329,14 @@ async fn run(opt: config::Opt) -> Result<()> {
 
     init_update_check();
 
+    info!(target: "rustfs::main::run","server started successfully at {}", &server_address);
+    // 4. Mark as Full Ready now that critical components are warm
+    readiness.mark_stage(SystemStage::FullReady);
     println!(
         "RustFS server started successfully at {}, current time: {}",
         &server_address,
         chrono::offset::Utc::now().to_string()
     );
-    info!(target: "rustfs::main::run","server started successfully at {}", &server_address);
-    // 4. Mark as Full Ready now that critical components are warm
-    readiness.mark_stage(SystemStage::FullReady);
 
     // Perform hibernation for 1 second
     tokio::time::sleep(SHUTDOWN_TIMEOUT).await;

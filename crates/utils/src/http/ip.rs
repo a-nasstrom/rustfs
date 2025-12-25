@@ -60,10 +60,12 @@ pub struct TrustedProxies {
 impl TrustedProxies {
     /// Create a new TrustedProxies configuration
     pub fn new(cidrs: Vec<String>, enable_validation: bool, max_chain_length: usize) -> Self {
-        let cidrs = cidrs.into_iter()
-            .filter_map(|s| s.parse::<IpNet>().ok())
-            .collect();
-        Self { cidrs, enable_validation, max_chain_length }
+        let cidrs = cidrs.into_iter().filter_map(|s| s.parse::<IpNet>().ok()).collect();
+        Self {
+            cidrs,
+            enable_validation,
+            max_chain_length,
+        }
     }
 
     /// Check if an IP address is within the trusted proxy ranges
@@ -310,11 +312,7 @@ mod tests {
 
     #[test]
     fn test_trusted_proxies_validation() {
-        let trusted_proxies = TrustedProxies::new(
-            vec!["192.168.1.0/24".to_string(), "10.0.0.0/8".to_string()],
-            true,
-            5,
-        );
+        let trusted_proxies = TrustedProxies::new(vec!["192.168.1.0/24".to_string(), "10.0.0.0/8".to_string()], true, 5);
 
         // Trusted IPs
         assert!(trusted_proxies.is_trusted_proxy("192.168.1.1".parse().unwrap()));
@@ -395,6 +393,9 @@ mod tests {
         assert!(is_valid_client_ip("203.0.113.1, 198.51.100.1", 5));
 
         // Invalid chain (too long)
-        assert!(!is_valid_client_ip("203.0.113.1, 198.51.100.1, 192.0.2.1, 192.0.2.2, 192.0.2.3, 192.0.2.4", 5));
+        assert!(!is_valid_client_ip(
+            "203.0.113.1, 198.51.100.1, 192.0.2.1, 192.0.2.2, 192.0.2.3, 192.0.2.4",
+            5
+        ));
     }
 }
