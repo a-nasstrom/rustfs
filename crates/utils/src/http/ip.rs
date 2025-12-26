@@ -114,9 +114,29 @@ fn is_valid_single_ip(ip_str: &str) -> bool {
         Ok(ip) => {
             // Reject private and loopback addresses as client IPs
             // (they should come from trusted proxies only)
-            !ip.is_private() && !ip.is_loopback()
+            !is_private(ip) && !ip.is_loopback()
         }
         Err(_) => false,
+    }
+}
+
+/// Check if an IP address is private
+///
+/// # Arguments
+/// * `ip` - The IP address to check
+///
+/// # Returns
+/// A `bool` indicating whether the IP is private
+///
+
+fn is_private(ip: IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(ipv4) => ipv4.is_private(),
+        IpAddr::V6(ipv6) => {
+            // Check if it's in fc00::/7 (Unique Local Address)
+            let octets = ipv6.octets();
+            (octets[0] & 0xfe) == 0xfc
+        }
     }
 }
 
